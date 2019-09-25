@@ -37,8 +37,16 @@ dds-client apps:list
 
 #### `apps:create`
 
-Create an application
+Create an app
 
 ```shell
 dds-client apps:create --name dopsa
+```
+
+#### `apps:delete`
+
+Delete an app
+
+```shell
+dds-client apps:delete --name dopsa
 ```

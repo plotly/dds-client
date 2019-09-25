@@ -31,8 +31,17 @@ type AddAppResponse struct {
 	AddApp AddApp `json:"addApp"`
 }
 
+type DeleteAppResponse struct {
+	DeleteApp DeleteApp `json:"deleteApp"`
+}
+
 type AddApp struct {
 	App   App    `json:"app"`
+	Error string `json:"error"`
+}
+
+type DeleteApp struct {
+	Ok    bool   `json:"ok"`
 	Error string `json:"error"`
 }
 
@@ -107,6 +116,36 @@ mutation AddApp($name: String!) {
 	fmt.Printf("====> %v created!\n", respData.AddApp.App.Name)
 }
 
+func appsDelete(name string) {
+	if name == "" {
+		log.Fatal(errors.New("No name specified"))
+	}
+
+	req := graphql.NewRequest(`
+mutation DeleteApp($name: String!) {
+  deleteApp(name: $name) {
+    ok
+    error
+  }
+}
+`)
+
+	req.Var("name", name)
+
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Authorization", "Basic "+basicAuth(Username, ApiKey))
+
+	ctx := context.Background()
+
+	var respData DeleteAppResponse
+
+	client := graphqlClient()
+	if err := client.Run(ctx, req, &respData); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("====> %v deleted!\n", name)
+}
+
 func graphqlClient() *graphql.Client {
 	httpclient := &http.Client{}
 	if true {
@@ -125,6 +164,7 @@ func main() {
 
 	appsListCmd := parser.NewCommand("apps:list", "List all apps")
 	appsCreateCmd := parser.NewCommand("apps:create", "Create an app")
+	appsDeleteCmd := parser.NewCommand("apps:delete", "Delete an app")
 	err := parser.Parse(os.Args)
 	if err != nil {
 		fmt.Print(parser.Usage(err))
@@ -135,6 +175,8 @@ func main() {
 		appsList()
 	} else if appsCreateCmd.Happened() {
 		appsCreate(*name)
+	} else if appsDeleteCmd.Happened() {
+		appsDelete(*name)
 	} else {
 		err := fmt.Errorf("bad arguments, please check usage")
 		fmt.Print(parser.Usage(err))
