@@ -113,7 +113,12 @@ mutation AddApp($name: String!) {
 	if err := client.Run(ctx, req, &respData); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("====> %v created!\n", respData.AddApp.App.Name)
+
+	if respData.AddApp.Error != "" {
+		fmt.Printf(" !    %v!\n", respData.AddApp.Error)
+	} else {
+		fmt.Printf("====> %v created!\n", respData.AddApp.App.Name)
+	}
 }
 
 func appsDelete(name string) {
@@ -143,7 +148,12 @@ mutation DeleteApp($name: String!) {
 	if err := client.Run(ctx, req, &respData); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("====> %v deleted!\n", name)
+
+	if respData.DeleteApp.Error != "" {
+		fmt.Printf(" !    %v!\n", respData.DeleteApp.Error)
+	} else {
+		fmt.Printf("====> %v deleted!\n", name)
+	}
 }
 
 func graphqlClient() *graphql.Client {
