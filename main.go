@@ -76,6 +76,9 @@ query apps($allApps: Boolean) {
 	var respData AppsResponse
 
 	client, err := graphqlClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err := client.Run(ctx, req, &respData); err != nil {
 		log.Fatal(err)
 	}
@@ -110,6 +113,9 @@ mutation AddApp($name: String!) {
 	var respData AddAppResponse
 
 	client, err := graphqlClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err := client.Run(ctx, req, &respData); err != nil {
 		log.Fatal(err)
 	}
@@ -145,6 +151,9 @@ mutation DeleteApp($name: String!) {
 	var respData DeleteAppResponse
 
 	client, err := graphqlClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err := client.Run(ctx, req, &respData); err != nil {
 		log.Fatal(err)
 	}
