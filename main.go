@@ -75,7 +75,7 @@ query apps($allApps: Boolean) {
 
 	var respData AppsResponse
 
-	client := graphqlClient()
+	client, err := graphqlClient()
 	if err := client.Run(ctx, req, &respData); err != nil {
 		log.Fatal(err)
 	}
@@ -109,7 +109,7 @@ mutation AddApp($name: String!) {
 
 	var respData AddAppResponse
 
-	client := graphqlClient()
+	client, err := graphqlClient()
 	if err := client.Run(ctx, req, &respData); err != nil {
 		log.Fatal(err)
 	}
@@ -144,7 +144,7 @@ mutation DeleteApp($name: String!) {
 
 	var respData DeleteAppResponse
 
-	client := graphqlClient()
+	client, err := graphqlClient()
 	if err := client.Run(ctx, req, &respData); err != nil {
 		log.Fatal(err)
 	}
@@ -156,7 +156,7 @@ mutation DeleteApp($name: String!) {
 	}
 }
 
-func graphqlClient() *graphql.Client {
+func graphqlClient() (client *graphql.Client, err error) {
 	httpclient := &http.Client{}
 	if true {
 		tr := &http.Transport{
@@ -165,7 +165,20 @@ func graphqlClient() *graphql.Client {
 		httpclient = &http.Client{Transport: tr}
 	}
 
-	return graphql.NewClient(ClientURL, graphql.WithHTTPClient(httpclient))
+	if ClientURL == "" {
+		return client, errors.New("DASH_API_URL environment variable not defined")
+	}
+
+	if Username == "" {
+		return client, errors.New("DASH_API_USER environment variable not defined")
+	}
+
+	if ApiKey == "" {
+		return client, errors.New("DASH_API_KEY environment variable not defined")
+	}
+
+	client = graphql.NewClient(ClientURL, graphql.WithHTTPClient(httpclient))
+	return client, err
 }
 
 func main() {
