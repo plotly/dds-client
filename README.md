@@ -17,9 +17,9 @@ go build -o dds-client
 > You can retrieve the `DASH_API_KEY` from the Dash Deployment Server Management UI.
 
 ```shell
-export DASH_API_KEY="SOME_KEY"
-export DASH_API_USER="your-username"
-export DASH_API_URL="https://dash.local/Manager/graphql"
+export DASH_ENTERPRISE_API_KEY="SOME_KEY"
+export DASH_ENTERPRISE_URL="https://dash.local"
+export DASH_ENTERPRISE_USERNAME="your-username"
 
 dds-client -h
 ```

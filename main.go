@@ -45,9 +45,9 @@ type DeleteApp struct {
 	Error string `json:"error"`
 }
 
-var ClientURL = os.Getenv("DASH_API_URL")
-var Username = os.Getenv("DASH_API_USER")
-var ApiKey = os.Getenv("DASH_API_KEY")
+var ApiKey = os.Getenv("DASH_ENTERPRISE_API_KEY")
+var DashEnterpriseURL = os.Getenv("DASH_ENTERPRISE_URL")
+var Username = os.Getenv("DASH_ENTERPRISE_USERNAME")
 
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
@@ -165,19 +165,19 @@ func graphqlClient() (client *graphql.Client, err error) {
 		httpclient = &http.Client{Transport: tr}
 	}
 
-	if ClientURL == "" {
-		return client, errors.New("DASH_API_URL environment variable not defined")
+	if DashEnterpriseURL == "" {
+		return client, errors.New("DASH_ENTERPRISE_URL environment variable not defined")
 	}
 
 	if Username == "" {
-		return client, errors.New("DASH_API_USER environment variable not defined")
+		return client, errors.New("DASH_ENTERPRISE_USERNAME environment variable not defined")
 	}
 
 	if ApiKey == "" {
-		return client, errors.New("DASH_API_KEY environment variable not defined")
+		return client, errors.New("DASH_ENTERPRISE_API_KEY environment variable not defined")
 	}
 
-	client = graphql.NewClient(ClientURL, graphql.WithHTTPClient(httpclient))
+	client = graphql.NewClient(DashEnterpriseURL+"/Manager/graphql", graphql.WithHTTPClient(httpclient))
 	return client, err
 }
 
