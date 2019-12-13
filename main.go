@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 
 	"github.com/akamensky/argparse"
 	"github.com/machinebox/graphql"
@@ -56,12 +57,12 @@ func basicAuth(username, password string) string {
 
 func appsList() {
 	req := graphql.NewRequest(`
-query apps($allApps: Boolean) {
-  apps(allApps: $allApps) {
-    nextPage
+query apps($page: Int!, $allApps: Boolean!) {
+  apps(page: $page, allApps: $allApps) {
     apps {
       name
     }
+    nextPage
   }
 }
 `)
@@ -79,11 +80,31 @@ query apps($allApps: Boolean) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := client.Run(ctx, req, &respData); err != nil {
-		log.Fatal(err)
+
+	var apps []string
+	page := 1
+	for true {
+		if page == 0 {
+			break
+		}
+
+		req.Var("page", page)
+		if err := client.Run(ctx, req, &respData); err != nil {
+			log.Fatal(err)
+		}
+		for _, app := range respData.AppsWrapper.Apps {
+			apps = append(apps, app.Name)
+		}
+
+		if page == respData.AppsWrapper.NextPage {
+			break
+		}
+		page = respData.AppsWrapper.NextPage
 	}
-	for _, app := range respData.AppsWrapper.Apps {
-		fmt.Printf("%v\n", app.Name)
+
+	sort.Strings(apps)
+	for _, app := range apps {
+		fmt.Printf("%v\n", app)
 	}
 }
 
