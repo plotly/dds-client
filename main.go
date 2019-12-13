@@ -142,7 +142,7 @@ mutation AddApp($name: String!) {
 	}
 
 	if respData.AddApp.Error != "" {
-		fmt.Printf(" !    %v!\n", respData.AddApp.Error)
+		fmt.Printf(" !    %v\n", respData.AddApp.Error)
 	} else {
 		fmt.Printf("====> %v created!\n", respData.AddApp.App.Name)
 	}
@@ -180,7 +180,7 @@ mutation DeleteApp($name: String!) {
 	}
 
 	if respData.DeleteApp.Error != "" {
-		fmt.Printf(" !    %v!\n", respData.DeleteApp.Error)
+		fmt.Printf(" !    %v\n", respData.DeleteApp.Error)
 	} else {
 		fmt.Printf("====> %v deleted!\n", name)
 	}
