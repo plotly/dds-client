@@ -55,6 +55,42 @@ func basicAuth(username, password string) string {
 	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
+func appExists(name string) {
+	req := graphql.NewRequest(`
+query apps($name: String!, $allApps: Boolean!) {
+  apps(name: $name, allApps: $allApps) {
+    apps {
+      name
+    }
+  }
+}
+`)
+
+	req.Var("allApps", false)
+	req.Var("name", name)
+
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Authorization", "Basic "+basicAuth(Username, ApiKey))
+
+	ctx := context.Background()
+
+	var respData AppsResponse
+
+	client, err := graphqlClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := client.Run(ctx, req, &respData); err != nil {
+		log.Fatal(err)
+	}
+	for _, app := range respData.AppsWrapper.Apps {
+		fmt.Printf("%v exists\n", app.Name)
+		os.Exit(0)
+	}
+	fmt.Printf("%v does not exist\n", name)
+	os.Exit(1)
+}
+
 func appsList() {
 	req := graphql.NewRequest(`
 query apps($page: Int!, $allApps: Boolean!) {
@@ -218,6 +254,7 @@ func main() {
 	appsListCmd := parser.NewCommand("apps:list", "List all apps")
 	appsCreateCmd := parser.NewCommand("apps:create", "Create an app")
 	appsDeleteCmd := parser.NewCommand("apps:delete", "Delete an app")
+	appExistsCmd := parser.NewCommand("apps:exists", "Check if an app exists")
 	err := parser.Parse(os.Args)
 	if err != nil {
 		fmt.Print(parser.Usage(err))
@@ -230,6 +267,8 @@ func main() {
 		appsCreate(*name)
 	} else if appsDeleteCmd.Happened() {
 		appsDelete(*name)
+	} else if appExistsCmd.Happened() {
+		appExists(*name)
 	} else {
 		err := fmt.Errorf("bad arguments, please check usage")
 		fmt.Print(parser.Usage(err))

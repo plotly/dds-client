@@ -35,6 +35,14 @@ List all apps
 dds-client apps:list
 ```
 
+#### `apps:exists`
+
+Check if an app exists
+
+```shell
+dds-client apps:exists --name dopsa
+```
+
 #### `apps:create`
 
 Create an app
