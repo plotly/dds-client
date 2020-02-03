@@ -87,7 +87,10 @@ query apps($name: String!, $allApps: Boolean!) {
 		fmt.Printf("%v exists\n", app.Name)
 		os.Exit(0)
 	}
-	fmt.Printf("%v does not exist\n", name)
+	fmt.Printf("%v not found. Possible causes:\n", name)
+	fmt.Printf("- You may not have been granted access to this app.")
+	fmt.Printf("- The app may not exist (or may not have been deployed yet).")
+	fmt.Printf("- The app is broken and could not be started.")
 	os.Exit(1)
 }
 
