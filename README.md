@@ -58,3 +58,67 @@ Delete an app
 ```shell
 dds-client apps:delete --name dopsa
 ```
+
+#### `postgres:list`
+
+List all postgres services
+
+```shell
+dds-client postgres:list
+```
+
+#### `postgres:exists`
+
+Check if a postgres service exists
+
+```shell
+dds-client postgres:exists --name dopsa
+```
+
+#### `postgres:create`
+
+Create a postgres service
+
+```shell
+dds-client postgres:create --name dopsa
+```
+
+#### `postgres:delete`
+
+Delete a postgres service
+
+```shell
+dds-client postgres:delete --name dopsa
+```
+
+#### `redis:list`
+
+List all redis services
+
+```shell
+dds-client redis:list
+```
+
+#### `redis:exists`
+
+Check if a redis service exists
+
+```shell
+dds-client redis:exists --name dopsa
+```
+
+#### `redis:create`
+
+Create a redis service
+
+```shell
+dds-client redis:create --name dopsa
+```
+
+#### `redis:delete`
+
+Delete a redis service
+
+```shell
+dds-client redis:delete --name dopsa
+```
