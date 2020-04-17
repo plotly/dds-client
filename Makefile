@@ -3,7 +3,7 @@ MAINTAINER = plotly
 REPOSITORY = dds-client
 HARDWARE = $(shell uname -m)
 SYSTEM_NAME  = $(shell uname -s | tr '[:upper:]' '[:lower:]')
-BASE_VERSION ?= 0.1.0
+BASE_VERSION ?= 0.2.0
 IMAGE_NAME ?= $(MAINTAINER)/$(REPOSITORY)
 
 ifeq ($(CIRCLE_BRANCH),release)
