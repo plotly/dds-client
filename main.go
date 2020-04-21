@@ -64,12 +64,30 @@ type DeleteServiceResponse struct {
 	DeleteService DeleteService `json:"deleteService"`
 }
 
+type LinkServiceResponse struct {
+	LinkService LinkService `json:"linkService"`
+}
+
+type UnlinkServiceResponse struct {
+	UnlinkService UnlinkService `json:"linkService"`
+}
+
 type AddService struct {
 	Service Service `json:"app"`
 	Error   string  `json:"error"`
 }
 
 type DeleteService struct {
+	Ok    bool   `json:"ok"`
+	Error string `json:"error"`
+}
+
+type LinkService struct {
+	Ok    bool   `json:"ok"`
+	Error string `json:"error"`
+}
+
+type UnlinkService struct {
 	Ok    bool   `json:"ok"`
 	Error string `json:"error"`
 }
@@ -95,8 +113,16 @@ func postgresExists(name string) {
 	serviceExists("postgres", name)
 }
 
+func postgresLink(serviceName string, appName string) {
+	serviceLink("postgres", serviceName, appName)
+}
+
 func postgresList() {
 	serviceList("postgres")
+}
+
+func postgresUnlink(serviceName string, appName string) {
+	serviceUnlink("postgres", serviceName, appName)
 }
 
 func redisCreate(name string) {
@@ -111,8 +137,16 @@ func redisExists(name string) {
 	serviceExists("redis", name)
 }
 
+func redisLink(serviceName string, appName string) {
+	serviceLink("redis", serviceName, appName)
+}
+
 func redisList() {
 	serviceList("redis")
+}
+
+func redisUnlink(serviceName string, appName string) {
+	serviceUnlink("redis", serviceName, appName)
 }
 
 func serviceCreate(serviceType string, name string) {
@@ -229,6 +263,94 @@ func serviceList(serviceType string) {
 		if service.ServiceType == serviceType {
 			fmt.Printf("%v\n", service.Name)
 		}
+	}
+}
+
+func serviceLink(serviceType string, serviceName string, appName string) {
+	if serviceName == "" {
+		log.Fatal(errors.New("No name specified"))
+	}
+
+	if appName == "" {
+		log.Fatal(errors.New("No app specified"))
+	}
+
+	mutation := `
+mutation LinkService($appname: String!, $serviceName: String!, $serviceType: ServiceType = %s) {
+  linkService(appname: $appname, serviceType: $serviceType, serviceName: $serviceName) {
+    ok
+    error
+  }
+}
+`
+	req := graphql.NewRequest(fmt.Sprintf(mutation, serviceType))
+
+	req.Var("appname", appName)
+	req.Var("serviceName", serviceName)
+
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Authorization", "Basic "+basicAuth(Username, ApiKey))
+
+	ctx := context.Background()
+
+	var respData LinkServiceResponse
+
+	client, err := graphqlClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := client.Run(ctx, req, &respData); err != nil {
+		log.Fatal(err)
+	}
+
+	if respData.LinkService.Error != "" {
+		fmt.Printf(" !    %v\n", respData.LinkService.Error)
+	} else {
+		fmt.Printf("====> %v linked!\n", appName)
+	}
+}
+
+func serviceUnlink(serviceType string, serviceName string, appName string) {
+	if serviceName == "" {
+		log.Fatal(errors.New("No name specified"))
+	}
+
+	if appName == "" {
+		log.Fatal(errors.New("No app specified"))
+	}
+
+	mutation := `
+mutation UnlinkService($appname: String!, $serviceName: String!, $serviceType: ServiceType = %s) {
+  unlinkService(appname: $appname, serviceType: $serviceType, serviceName: $serviceName) {
+    ok
+    error
+  }
+}
+`
+	req := graphql.NewRequest(fmt.Sprintf(mutation, serviceType))
+
+	req.Var("appname", appName)
+	req.Var("serviceName", serviceName)
+
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Authorization", "Basic "+basicAuth(Username, ApiKey))
+
+	ctx := context.Background()
+
+	var respData UnlinkServiceResponse
+
+	client, err := graphqlClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := client.Run(ctx, req, &respData); err != nil {
+		log.Fatal(err)
+	}
+
+	if respData.UnlinkService.Error != "" {
+		fmt.Printf(" !    %v\n", respData.UnlinkService.Error)
+	} else {
+		fmt.Printf("====> %v unlinked!\n", appName)
 	}
 }
 
@@ -477,7 +599,15 @@ func main() {
 	postgresExistsCmd := parser.NewCommand("postgres:exists", "Check if a postgres service exists")
 	postgresExistsCmdName := postgresExistsCmd.String("", "name", &argparse.Options{Help: "Name of service"})
 
+	postgresLinkCmd := parser.NewCommand("postgres:link", "Link a postgres service to an app")
+	postgresLinkCmdName := postgresLinkCmd.String("", "name", &argparse.Options{Help: "Name of service"})
+	postgresLinkCmdApp := postgresLinkCmd.String("", "app", &argparse.Options{Help: "Name of app"})
+
 	postgresListCmd := parser.NewCommand("postgres:list", "List all postgres services")
+
+	postgresUnlinkCmd := parser.NewCommand("postgres:unlink", "Unlink a postgres service to an app")
+	postgresUnlinkCmdName := postgresUnlinkCmd.String("", "name", &argparse.Options{Help: "Name of service"})
+	postgresUnlinkCmdApp := postgresUnlinkCmd.String("", "app", &argparse.Options{Help: "Name of app"})
 
 	redisCreateCmd := parser.NewCommand("redis:create", "Create a redis service")
 	redisCreateCmdName := redisCreateCmd.String("", "name", &argparse.Options{Help: "Name of service"})
@@ -488,7 +618,15 @@ func main() {
 	redisExistsCmd := parser.NewCommand("redis:exists", "Check if a redis service exists")
 	redisExistsCmdName := redisExistsCmd.String("", "name", &argparse.Options{Help: "Name of service"})
 
+	redisLinkCmd := parser.NewCommand("redis:link", "Link a redis service to an app")
+	redisLinkCmdName := redisLinkCmd.String("", "name", &argparse.Options{Help: "Name of service"})
+	redisLinkCmdApp := redisLinkCmd.String("", "app", &argparse.Options{Help: "Name of app"})
+
 	redisListCmd := parser.NewCommand("redis:list", "List all redis services")
+
+	redisUnlinkCmd := parser.NewCommand("redis:unlink", "Unlink a redis service to an app")
+	redisUnlinkCmdName := redisUnlinkCmd.String("", "name", &argparse.Options{Help: "Name of service"})
+	redisUnlinkCmdApp := redisUnlinkCmd.String("", "app", &argparse.Options{Help: "Name of app"})
 
 	err := parser.Parse(os.Args)
 	if err != nil {
@@ -510,16 +648,24 @@ func main() {
 		postgresDelete(*postgresDeleteCmdName)
 	} else if postgresExistsCmd.Happened() {
 		postgresExists(*postgresExistsCmdName)
+	} else if postgresLinkCmd.Happened() {
+		postgresLink(*postgresLinkCmdName, *postgresLinkCmdApp)
 	} else if postgresListCmd.Happened() {
 		postgresList()
+	} else if postgresUnlinkCmd.Happened() {
+		postgresUnlink(*postgresUnlinkCmdName, *postgresUnlinkCmdApp)
 	} else if redisCreateCmd.Happened() {
 		redisCreate(*redisCreateCmdName)
 	} else if redisDeleteCmd.Happened() {
 		redisDelete(*redisDeleteCmdName)
 	} else if redisExistsCmd.Happened() {
 		redisExists(*redisExistsCmdName)
+	} else if redisLinkCmd.Happened() {
+		redisLink(*redisLinkCmdName, *redisLinkCmdApp)
 	} else if redisListCmd.Happened() {
 		redisList()
+	} else if redisUnlinkCmd.Happened() {
+		redisUnlink(*redisUnlinkCmdName, *redisUnlinkCmdApp)
 	} else {
 		err := fmt.Errorf("bad arguments, please check usage")
 		fmt.Print(parser.Usage(err))

@@ -91,6 +91,22 @@ Delete a postgres service
 dds-client postgres:delete --name dopsa
 ```
 
+#### `postgres:link`
+
+Link a postgres service to an app
+
+```shell
+dds-client postgres:link --name dopsa --app dopsa
+```
+
+#### `postgres:unlink`
+
+Unlink a postgres service from an app
+
+```shell
+dds-client postgres:unlink --name dopsa --app dopsa
+```
+
 #### `redis:list`
 
 List all redis services
@@ -121,4 +137,20 @@ Delete a redis service
 
 ```shell
 dds-client redis:delete --name dopsa
+```
+
+#### `redis:link`
+
+Link a redis service to an app
+
+```shell
+dds-client redis:link --name dopsa --app dopsa
+```
+
+#### `redis:unlink`
+
+Unlink a redis service from an app
+
+```shell
+dds-client redis:unlink --name dopsa --app dopsa
 ```
