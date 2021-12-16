@@ -392,7 +392,7 @@ query apps($name: String!, $allApps: Boolean!) {
 }
 `)
 
-	req.Var("allApps", false)
+	req.Var("allApps", true)
 	req.Var("name", name)
 
 	req.Header.Set("Cache-Control", "no-cache")
