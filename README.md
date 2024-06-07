@@ -2,6 +2,13 @@
 
 A golang client for the dds GraphQL API
 
+<div align="center">
+  <a href="https://dash.plotly.com/project-maintenance">
+    <img src="https://dash.plotly.com/assets/images/maintained-by-plotly.png" width="400px" alt="Maintained by Plotly">
+  </a>
+</div>
+
+
 ## Requirements
 
 - Go 1.13+
